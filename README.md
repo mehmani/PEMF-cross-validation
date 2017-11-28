@@ -7,6 +7,8 @@ PEMF (has been and) can be readily used for the following purposes:
 3. Surrogate model selection 
 4. Surrogate-based optimization (to guide sequential sampling) 
 Other perceived broader applications of PEMF include testing of machine learning models and uncertainty analysis with data-driven models (and other areas where leave-one-out or k-fold cross-validation is typically used). 
+
 Cite PEMF as: 
+
 A. Mehmani, S. Chowdhury, and A. Messac, "Predictive quantification of surrogate model fidelity based on modal variations with sample density," Structural and Multidisciplinary Optimization, vol. 52, pp. 353-373, 2015. 
 This is the first release of PEMF; so, any feedback or information on any bugs (that we might have missed) is very welcome
