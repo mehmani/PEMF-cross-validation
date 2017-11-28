@@ -1,0 +1,185 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>demo_PEMF</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2016-11-04"><meta name="DC.source" content="demo_PEMF.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">This is a sample program to demonstrate how to use PEMF</a></li><li><a href="#3">generating training points (Branin function)</a></li><li><a href="#4">trying out RBF</a></li><li><a href="#5">trying out Kriging (if DACE package is available)</a></li><li><a href="#6">trying out SVR (if Libsvm package is available)</a></li><li><a href="#8">testing</a></li></ul></div><h2>This is a sample program to demonstrate how to use PEMF<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> demo_PEMF
+</pre><pre class="codeinput"><span class="comment">% addpath(cd('..'));</span>
+PEMF_main_folder = cd(cd(<span class="string">'..'</span>));
+addpath(genpath(PEMF_main_folder));
+</pre><h2>generating training points (Branin function)<a name="3"></a></h2><pre class="codeinput">x0 = lhsdesign(30,2);
+<span class="keyword">for</span> i=1:length(x0),
+    x(i,:) = [-5,0] + x0(i,:)*15;
+    y(i,:) = branin(x(i,:));
+<span class="keyword">end</span>
+</pre><h2>trying out RBF<a name="4"></a></h2><pre class="codeinput"><span class="keyword">if</span> exist(<span class="string">'RBF'</span>,<span class="string">'dir'</span>)
+    surrogate_trainer = @(x,y) rbf_trainer(x,y); <span class="comment">% calling RBF trainer</span>
+    [err1, sur_mod1] = PEMF(surrogate_trainer, x,y,<span class="string">'median'</span>,<span class="string">'high'</span>); <span class="comment">% calling PEMF</span>
+    fprintf(<span class="string">'RBF error: %f\n\n'</span>,err1);
+    figure()
+    plotting_model(sur_mod1);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">PEMF Starting
+Iter 1: 40 of 160 intermediate models evaluated
+Iter 2: 80 of 160 intermediate models evaluated
+Iter 3: 120 of 160 intermediate models evaluated
+Iter 4: 160 of 160 intermediate models evaluated
+
+PEMF_Error (median): 0.089670
+
+RBF error: 0.089670
+
+</pre><img vspace="5" hspace="5" src="demo_PEMF_03.png" style="width:560px;height:420px;" alt=""> <h2>trying out Kriging (if DACE package is available)<a name="5"></a></h2><pre class="codeinput"><span class="keyword">if</span> exist(<span class="string">'dace'</span>,<span class="string">'dir'</span>)
+    surrogate_trainer = @(x,y) dace_trainer(x,y); <span class="comment">% calling Kriging trainer</span>
+    [err2, sur_mod2] = PEMF(surrogate_trainer, x,y,<span class="string">'median'</span>,<span class="string">'low'</span>,[],[],[],20); <span class="comment">% calling PEMF</span>
+    fprintf(<span class="string">'Kriging error: %f\n\n'</span>,err2);
+    figure()
+    plotting_model(sur_mod2);
+<span class="keyword">end</span>
+</pre><h2>trying out SVR (if Libsvm package is available)<a name="6"></a></h2><pre class="codeinput"><span class="keyword">if</span> exist(<span class="string">'libsvm'</span>,<span class="string">'dir'</span>)
+    surrogate_trainer = @(x,y) svr_trainer(x,y,[1.0 1.0]); <span class="comment">% calling SVR trainer</span>
+    [err3, sur_mod3] = PEMF(surrogate_trainer, x,y); <span class="comment">% calling PEMF</span>
+    fprintf(<span class="string">'SVR error: %d\n'</span>,err3);
+    figure()
+    plotting_model(sur_mod3);
+<span class="keyword">end</span>
+</pre><pre class="codeinput"><span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="demo_PEMF_01.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="demo_PEMF_02.png" style="width:560px;height:420px;" alt=""> <h2>testing<a name="8"></a></h2><pre class="codeinput"><span class="keyword">function</span> plotting_model(sur_mod)
+
+x1 = [0:0.01:1]';
+<span class="keyword">for</span> i=1:length(x1),
+    x_te2(i) = 0 + x1(i,:)*15;
+    <span class="keyword">for</span> j=1:length(x1)
+        x_te1(j) = -5 + x1(j,:)*15;
+        y_te(i,j) = sur_mod([x_te1(j),x_te2(i)]);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+surf(x_te1,x_te2,y_te);
+xlabel(<span class="string">'x'</span>); ylabel(<span class="string">'y'</span>); zlabel(<span class="string">'f'</span>);
+<span class="keyword">end</span>
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% This is a sample program to demonstrate how to use PEMF
+function demo_PEMF
+
+% addpath(cd('..'));
+PEMF_main_folder = cd(cd('..'));
+addpath(genpath(PEMF_main_folder));
+
+%% generating training points (Branin function)
+x0 = lhsdesign(30,2);
+for i=1:length(x0),
+    x(i,:) = [-5,0] + x0(i,:)*15;
+    y(i,:) = branin(x(i,:));
+end
+
+%% trying out RBF
+if exist('RBF','dir')
+    surrogate_trainer = @(x,y) rbf_trainer(x,y); % calling RBF trainer
+    [err1, sur_mod1] = PEMF(surrogate_trainer, x,y,'median','high'); % calling PEMF
+    fprintf('RBF error: %f\n\n',err1);
+    figure()
+    plotting_model(sur_mod1);
+end
+
+%% trying out Kriging (if DACE package is available)
+if exist('dace','dir')
+    surrogate_trainer = @(x,y) dace_trainer(x,y); % calling Kriging trainer
+    [err2, sur_mod2] = PEMF(surrogate_trainer, x,y,'median','low',[],[],[],20); % calling PEMF
+    fprintf('Kriging error: %f\n\n',err2);
+    figure()
+    plotting_model(sur_mod2);
+end
+
+%% trying out SVR (if Libsvm package is available)
+if exist('libsvm','dir')
+    surrogate_trainer = @(x,y) svr_trainer(x,y,[1.0 1.0]); % calling SVR trainer
+    [err3, sur_mod3] = PEMF(surrogate_trainer, x,y); % calling PEMF
+    fprintf('SVR error: %d\n',err3);
+    figure()
+    plotting_model(sur_mod3);
+end
+
+end
+
+%% testing
+function plotting_model(sur_mod)
+
+x1 = [0:0.01:1]';
+for i=1:length(x1),
+    x_te2(i) = 0 + x1(i,:)*15;
+    for j=1:length(x1)    
+        x_te1(j) = -5 + x1(j,:)*15;
+        y_te(i,j) = sur_mod([x_te1(j),x_te2(i)]);
+    end
+end
+
+surf(x_te1,x_te2,y_te);
+xlabel('x'); ylabel('y'); zlabel('f');
+end
+##### SOURCE END #####
+--></body></html>
